@@ -52,7 +52,7 @@ jobs:
           echo 'PROJECT_ID='$(jq '.data.organization.projectV2.id' project_data.json) >> $GITHUB_ENV
           echo 'STATUS_FIELD_ID='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .id' project_data.json) >> $GITHUB_ENV
           echo 'TODO_OPTION_ID='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="Ready for Dev Review") |.id' project_data.json) >> $GITHUB_ENV
-          echo 'ITEM_ID='$(jq '.data.organization.projectV2.items.nodes[] | select(.type== "PULL_REQUEST") | select(.id==${{ PR_ID }}) |.id' project_data.json) >> $GITHUB_ENV
+          echo 'ITEM_ID='$(jq '.data.organization.projectV2.items.nodes[] | select(.type== "PULL_REQUEST") | select(.id==${{ env.PR_ID }}) |.id' project_data.json) >> $GITHUB_ENV
 
       - name: Set fields
         env:
