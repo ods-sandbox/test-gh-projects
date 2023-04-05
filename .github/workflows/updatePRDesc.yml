@@ -1,0 +1,51 @@
+name: Update PR
+on:
+  pull_request:
+    types:
+      - ready_for_review
+jobs:
+  track_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get PR Desc
+        env:
+          GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
+          ORGANIZATION: 'ods-sandbox'
+          PROJECT_NUMBER: 1
+          PR_ID: ${{ github.event.pull_request.node_id }}
+        run: | 
+          gh api graphql -f query='
+            query($id: ID!) {
+              node(id: $id) {
+                ... on PullRequest {
+                  body
+                  number
+                }
+              }
+            }' -f id='$PR_ID' > project_data.json
+          
+          echo `cat project_data.json`
+          
+          echo 'PR_DESC_TEMP='$(jq '.data.node.body' project_data.json) >> $GITHUB_ENV
+          echo 'PR_NUMB='$(jq '.data.node.number' project_data.json) >> $GITHUB_ENV
+
+          echo 'PR_DESC='$(cat ${{ env.PR_DESC_TEMP }} | sed -e "s/{your_pr_number}/${{ env.PR_NUMB }}/g"
+          
+      - name: Set PR Desc
+        run: | 
+          gh api graphql -f query='
+            mutation (
+              $item: ID!
+              $desc: String
+            ) {
+              set_status: updatePullRequest(input: {
+                pullRequestId: $item
+                body: $desc
+              }) {
+                pullRequest {
+                  id
+                  body
+                }
+              }
+            }' -f item="${{ env.PR_ID }}" -f desc="${{ env.PR_DESC }}" --silent
+        
