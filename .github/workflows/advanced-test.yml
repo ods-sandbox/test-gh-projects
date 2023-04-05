@@ -35,6 +35,14 @@ jobs:
                       }
                     }
                   }
+                  items {
+                    nodes {
+                      ... on ProjectV2Item {
+                        id
+                        type
+                      }
+                    }
+                  }
                 }
               }
             }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
