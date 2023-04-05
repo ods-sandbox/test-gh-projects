@@ -10,8 +10,8 @@ jobs:
       - name: Get project data
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
-          ORGANIZATION: 'julien-deramond'
-          PROJECT_NUMBER: 3
+          ORGANIZATION: 'ods-sandbox'
+          PROJECT_NUMBER: 1
         run: |
           gh api graphql -f query='
             query($org: String!, $number: Int!) {
