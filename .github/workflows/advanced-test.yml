@@ -36,16 +36,7 @@ jobs:
                     }
                   }
                   items(first:20) {
-                    nodes {
-                      ... on ProjectV2PullRequestItem {
-                        id
-                        type
-                        number
-                        pullRequest {
-                          id
-                        }
-                      }
-                    }
+                    nodes
                   }
                 }
               }
