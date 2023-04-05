@@ -35,7 +35,7 @@ jobs:
                       }
                     }
                   }
-                  items {
+                  items(first:20) {
                     nodes {
                       ... on ProjectV2Item {
                         id
