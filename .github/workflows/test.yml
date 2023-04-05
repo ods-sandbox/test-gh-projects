@@ -1,0 +1,17 @@
+name: Test Workflow Blabla
+on:
+  pull_request:
+    types:
+      - ready_for_review
+jobs:
+  track_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get project data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORGANIZATION: ${{ github.event.repository.owner.login }}
+          PROJECT_NUMBER: 3
+        run: |
+          echo "GITHUB_TOKEN: $GITHUB_TOKEN";
+          echo "ORGANIZATION: $ORGANIZATION";
