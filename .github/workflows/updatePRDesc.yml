@@ -29,7 +29,7 @@ jobs:
           echo 'PR_DESC_TEMP='$(jq '.data.node.body' project_data.json) >> $GITHUB_ENV
           echo 'PR_NUMB='$(jq '.data.node.number' project_data.json) >> $GITHUB_ENV
 
-          echo 'PR_DESC='$(cat ${{ env.PR_DESC_TEMP }} | sed -e "s/{your_pr_number}/${{ env.PR_NUMB }}/g"
+          echo 'PR_DESC='$(cat ${{ env.PR_DESC_TEMP }} | sed "s/{your_pr_number}/${{ env.PR_NUMB }}/g"
           
       - name: Set PR Desc
         run: | 
