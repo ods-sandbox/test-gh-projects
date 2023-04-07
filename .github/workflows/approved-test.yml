@@ -104,6 +104,10 @@ jobs:
               set_status: removeLabelsFromLabelable(input: {
                 labelIds : $labelIds
                 labelableId : $labelableId
-              }) {}
+              }) {
+                labelable {
+                  id
+                }
+              }
             }' -f labelIds=[$LABEL_BUG_ID] -f labelableId=$ITEM_ID --silent
           
