@@ -90,7 +90,6 @@ jobs:
             }' -f project=$PROJECT_ID -f item=$ITEM_ID -f status_field=$STATUS_FIELD_ID -f status_value=${{ env.TODO_OPTION_ID }} --silent
       
       - name: Set labels
-        if: contains(github.event.pull_request.labels, 'bug')
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
           LABEL_BUG_ID: ${{ github.repository.labels.bug.node_id }}
