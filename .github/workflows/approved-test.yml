@@ -106,7 +106,7 @@ jobs:
                 labelableId : $labelableId
               }) {
                 labelable {
-                  id
+                  labels
                 }
               }
             }' -f labelIds=[$LABEL_BUG_ID] -f labelableId=$ITEM_ID --silent
