@@ -42,7 +42,7 @@ jobs:
                       content {
                         ... on PullRequest {
                           id
-                          labels {
+                          labels(first:20) {
                             nodes {
                               id
                               name
