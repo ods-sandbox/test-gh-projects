@@ -30,6 +30,7 @@ jobs:
           
       - name: Set PR Desc
         env:
+          GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
           PR_ID: ${{ github.event.pull_request.node_id }}
         run: | 
           gh api graphql -f query='
