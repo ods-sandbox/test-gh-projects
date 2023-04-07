@@ -98,16 +98,16 @@ jobs:
           
           gh api graphql -f query='
             mutation (
-              $project: [ID!]!
-              $item: ID!
+              $labelIds: [ID!]!
+              $labelableId: ID!
             ) {
-              set_status: RemoveLabelsFromLabelableInput(input: {
-                labelIds : $project
-                labelableId : $item
+              set_status: RemoveLabelsFromLabelable(input: {
+                labelIds : $labelIds
+                labelableId : $labelableId
               }) {
                 projectV2Item {
                   id
                 }
               }
-            }' -f project=[$PROJECT_ID] -f item=$ITEM_ID --silent
+            }' -f labelIds=[$PROJECT_ID] -f labelableId=$ITEM_ID --silent
           
