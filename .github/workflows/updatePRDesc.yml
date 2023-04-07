@@ -29,11 +29,13 @@ jobs:
           echo 'PR_DESC='$(jq '.data.node.body' project_data.json | sed "s/{your_pr_number}/${{ env.PR_NUMB }}/g") >> $GITHUB_ENV
           
       - name: Set PR Desc
+        env:
+          PR_ID: ${{ github.event.pull_request.node_id }}
         run: | 
           gh api graphql -f query='
             mutation (
               $item: ID!
-              $desc: String
+              $desc: String!
             ) {
               set_status: updatePullRequest(input: {
                 pullRequestId: $item
