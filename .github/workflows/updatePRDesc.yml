@@ -13,23 +13,20 @@ jobs:
           ORGANIZATION: 'ods-sandbox'
           PROJECT_NUMBER: 1
           PR_ID: ${{ github.event.pull_request.node_id }}
+          PR_NUMB: ${{ github.event.pull_request.number }}
         run: | 
           gh api graphql -f query='
             query($id: ID!) {
               node(id: $id) {
                 ... on PullRequest {
                   body
-                  number
                 }
               }
             }' -f id=$PR_ID > project_data.json
           
           echo `cat project_data.json`
-          
-          echo 'PR_DESC_TEMP='$(jq '.data.node.body' project_data.json) >> $GITHUB_ENV
-          echo 'PR_NUMB='$(jq '.data.node.number' project_data.json) >> $GITHUB_ENV
 
-          echo 'PR_DESC='$(echo "$PR_DESC_TEMP" | sed "s/{your_pr_number}/$PR_NUMB/g"
+          echo 'PR_DESC='$(jq '.data.node.body' project_data.json | sed "s/{your_pr_number}/${{ env.PR_NUMB }}/g") >> $GITHUB_ENV
           
       - name: Set PR Desc
         run: | 
