@@ -92,7 +92,7 @@ jobs:
       - name: Set labels
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
-          LABEL_BUG_ID: ${{ github.event.pull_request.labels }}
+          LABEL_BUG_ID: ${{ github.event.pull_request.labels[0].node_id }}
         run: |
           echo $LABEL_BUG_ID
           
