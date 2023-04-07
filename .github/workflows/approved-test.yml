@@ -106,7 +106,11 @@ jobs:
                 labelableId : $labelableId
               }) {
                 labelable {
-                  labels
+                  labels(first:20) {
+                    nodes {
+                      name
+                    }
+                  }
                 }
               }
             }' -f labelIds=[$LABEL_BUG_ID] -f labelableId=$ITEM_ID --silent
