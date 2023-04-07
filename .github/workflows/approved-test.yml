@@ -93,13 +93,13 @@ jobs:
         if: contains(github.event.pull_request.labels, 'bug')
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
-          LABEL_BUG_ID: ${{ github.repository.labels }}
+          LABEL_BUG_ID: ${{ github.repository.labels.bug.node_id }}
         run: |
-          echo ${{env.LABEL_BUG_ID}}
+          echo $LABEL_BUG_ID
           
           gh api graphql -f query='
             mutation (
-              $project: ID!
+              $project: [ID!]!
               $item: ID!
             ) {
               set_status: RemoveLabelsFromLabelableInput(input: {
@@ -110,5 +110,5 @@ jobs:
                   id
                 }
               }
-            }' -f project=$PROJECT_ID -f item=$ITEM_ID --silent
+            }' -f project=[$PROJECT_ID] -f item=$ITEM_ID --silent
           
