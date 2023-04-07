@@ -22,7 +22,7 @@ jobs:
                   number
                 }
               }
-            }' -f id='$PR_ID' > project_data.json
+            }' -f id=$PR_ID > project_data.json
           
           echo `cat project_data.json`
           
@@ -47,5 +47,5 @@ jobs:
                   body
                 }
               }
-            }' -f item="${{ env.PR_ID }}" -f desc="${{ env.PR_DESC }}" --silent
+            }' -f item=$PR_ID -f desc=$PR_DESC --silent
         
