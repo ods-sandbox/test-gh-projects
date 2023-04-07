@@ -1,4 +1,4 @@
-name: Move when assignee
+name: Move when approved
 on:
   pull_request_review:
     types:
@@ -90,7 +90,7 @@ jobs:
             }' -f project=$PROJECT_ID -f item=$ITEM_ID -f status_field=$STATUS_FIELD_ID -f status_value=${{ env.TODO_OPTION_ID }} --silent
 
       - name: Set fields
-        if: '!(contains(github.event.pull_request.labels, "bug") || contains(github.event.pull_request.labels, "documentation"))'
+        if: "!(contains(github.event.pull_request.labels, 'bug') || contains(github.event.pull_request.labels, 'documentation'))"
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
         run: |
