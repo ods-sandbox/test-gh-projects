@@ -35,16 +35,14 @@ jobs:
           gh api graphql -f query='
             mutation (
               $item: ID!
-              $desc: String!
             ) {
               set_status: updatePullRequest(input: {
                 pullRequestId: $item
-                body: $desc
+                body: ${{ env.PR_DESC }}
               }) {
                 pullRequest {
                   id
-                  body
                 }
               }
-            }' -f item=$PR_ID -f desc=$PR_DESC --silent
+            }' -f item=$PR_ID --silent
         
