@@ -92,7 +92,7 @@ jobs:
       - name: Set labels
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
-          LABEL_BUG_ID: ${{ github.repository.labels }}
+          LABEL_BUG_ID: ${{ github.event.pull_request.labels }}
         run: |
           echo $LABEL_BUG_ID
           
@@ -104,10 +104,6 @@ jobs:
               set_status: removeLabelsFromLabelable(input: {
                 labelIds : $labelIds
                 labelableId : $labelableId
-              }) {
-                projectV2Item {
-                  id
-                }
-              }
-            }' -f labelIds=[$PROJECT_ID] -f labelableId=$ITEM_ID --silent
+              }) {}
+            }' -f labelIds=[$LABEL_BUG_ID] -f labelableId=$ITEM_ID --silent
           
