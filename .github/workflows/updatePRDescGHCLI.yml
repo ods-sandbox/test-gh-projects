@@ -1,0 +1,22 @@
+name: Update PR Description GH CLI
+on:
+  pull_request:
+    types:
+      - ready_for_review
+jobs:
+  track_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update PR Description
+        run: |
+          test="$(gh api /codes_of_conduct)"
+          echo 'TEST='$test
+        env:
+          GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+      - run: |
+          gh issue create --title "Issue report" --body " --body "body" --repo $GITHUB_REPOSITORY
+        env:
+          GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
+        

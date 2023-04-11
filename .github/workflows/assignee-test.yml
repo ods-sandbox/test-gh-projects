@@ -1,8 +1,9 @@
 name: Move when assignee
 on:
-  pull_request:
-    types:
-      - review_requested
+  workflow_dispatch:
+  # pull_request:
+  #  types:
+  #    - review_requested
 jobs:
   track_pr:
     runs-on: ubuntu-latest
