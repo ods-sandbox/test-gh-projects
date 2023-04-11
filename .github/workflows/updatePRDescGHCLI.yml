@@ -15,8 +15,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
-      - run: |
-          gh issue create --title "Issue report" --body "the body" --repo $GITHUB_REPOSITORY
-        env:
-          GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
+      # - run: |
+      #    gh issue create --title "Issue report" --body "the body" --repo $GITHUB_REPOSITORY
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
         
