@@ -9,12 +9,13 @@ jobs:
     steps:
       - name: Update PR Description
         run: |
-          test="$(gh api /codes_of_conduct)"
-          echo 'TEST='$test
+          BODY="$(gh api /repos/$OWNER/$REPO/pulls/$PR_NUMBER | jq -r '.body')"
+          echo 'BODY='$BODY
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
+          PR_NUMBER: ${{ github.event.number }}
       # - run: |
       #    gh issue create --title "Issue report" --body "the body" --repo $GITHUB_REPOSITORY
       #  env:
