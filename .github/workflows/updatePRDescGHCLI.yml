@@ -20,14 +20,10 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
       - name: Update PR Description
         run: |
-          gh pr edit $PR_NUMBER --body "$PR_UPDATED_BODY" --repo $REPO
+          gh api --method PATCH /repos/$OWNER/$REPO/pulls/$PR_NUMBER -f body="$PR_UPDATED_BODY"
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
           PR_NUMBER: ${{ github.event.number }}
-
-      # - run: |
-      #    gh issue create --title "Issue report" --body "the body" --repo $GITHUB_REPOSITORY
-      #  env:
-      #    GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
         
