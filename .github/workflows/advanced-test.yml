@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Get project data
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
           ORGANIZATION: 'ods-sandbox'
           PROJECT_NUMBER: 1
           PR_ID: ${{ github.event.pull_request.node_id }}
@@ -59,7 +59,7 @@ jobs:
 
       - name: Set fields
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
         run: |
           gh api graphql -f query='
             mutation (
