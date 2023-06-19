@@ -228,7 +228,7 @@ jobs:
       - name: Change project card to the lead tech column
         if: "!(contains(github.event.pull_request.labels.*.name, 'upcoming a11y review') || contains(github.event.pull_request.labels.*.name, 'bug'))"
         env:
-          GITHUB_TOKEN: ${{ secrets.BOOSTED_MOD_PERSONAL_TOKEN_CLASSIC }}
+          GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
         run: |
           gh api graphql -f query='
             mutation (
