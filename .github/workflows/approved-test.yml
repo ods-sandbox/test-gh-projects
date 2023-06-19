@@ -128,7 +128,7 @@ jobs:
       - name: Change design label
         if: contains(github.event.pull_request.labels.*.name, 'bug')
         env:
-          GITHUB_TOKEN: ${{ secrets.BOOSTED_MOD_PERSONAL_TOKEN_CLASSIC }}
+          GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
