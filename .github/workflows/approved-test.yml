@@ -1,20 +1,160 @@
-name: Move when approved
+# name: Move when approved
+# on:
+#   pull_request_review:
+#     types:
+#       - submitted
+# jobs:
+#   track_pr:
+#     if: github.event.review.state == 'approved'
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Get project data
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
+#           ORGANIZATION: 'ods-sandbox'
+#           PROJECT_NUMBER: 1
+#           PR_ID: ${{ github.event.pull_request.node_id }}
+#         run: |
+#           gh api graphql -f query='
+#             query($org: String!, $number: Int!) {
+#               organization(login: $org){
+#                 projectV2(number: $number) {
+#                   id
+#                   fields(first:20) {
+#                     nodes {
+#                       ... on ProjectV2Field {
+#                         id
+#                         name
+#                       }
+#                       ... on ProjectV2SingleSelectField {
+#                         id
+#                         name
+#                         options {
+#                           id
+#                           name
+#                         }
+#                       }
+#                     }
+#                   }
+#                   items(first:20) {
+#                     nodes {
+#                       id
+#                       content {
+#                         ... on PullRequest {
+#                           id
+#                           labels(first:20) {
+#                             nodes {
+#                               id
+#                               name
+#                             }
+#                           }
+#                         }
+#                       }
+#                     }
+#                   }
+#                 }
+#               }
+#             }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
+
+#           echo `cat project_data.json`
+
+#           echo 'PROJECT_ID='$(jq '.data.organization.projectV2.id' project_data.json) >> $GITHUB_ENV
+#           echo 'STATUS_FIELD_ID='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .id' project_data.json) >> $GITHUB_ENV
+#           echo 'TODO_OPTION_ID='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="Need Design and/or Accessibility review") |.id' project_data.json) >> $GITHUB_ENV
+#           echo 'ITEM_ID='$(jq '.data.organization.projectV2.items.nodes[] | select(.content.id=="${{ env.PR_ID }}") |.id' project_data.json) >> $GITHUB_ENV
+
+#       - name: Set fields
+#         if: contains(github.event.pull_request.labels, 'bug') || contains(github.event.pull_request.labels, 'documentation')
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
+#         run: |
+#           gh api graphql -f query='
+#             mutation (
+#               $project: ID!
+#               $item: ID!
+#               $status_field: ID!
+#               $status_value: String!
+#             ) {
+#               set_status: updateProjectV2ItemFieldValue(input: {
+#                 projectId: $project
+#                 itemId: $item
+#                 fieldId: $status_field
+#                 value: { 
+#                   singleSelectOptionId: $status_value
+#                 }
+#               }) {
+#                 projectV2Item {
+#                   id
+#                 }
+#               }
+#             }' -f project=$PROJECT_ID -f item=$ITEM_ID -f status_field=$STATUS_FIELD_ID -f status_value=${{ env.TODO_OPTION_ID }} --silent
+      
+#       - name: Set labels
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
+#           LABEL_BUG_ID: ${{ github.event.pull_request.labels[0].node_id }}
+#         run: |
+#           echo $LABEL_BUG_ID
+          
+#           gh api graphql -f query='
+#             mutation (
+#               $labelIds: [ID!]!
+#               $labelableId: ID!
+#             ) {
+#               set_status: removeLabelsFromLabelable(input: {
+#                 labelIds : $labelIds
+#                 labelableId : $labelableId
+#               }) {
+#                 labelable {
+#                   labels(first:20) {
+#                     nodes {
+#                       name
+#                     }
+#                   }
+#                 }
+#               }
+#             }' -f labelIds=[$LABEL_BUG_ID] -f labelableId=$ITEM_ID --silent
+name: Update PR board according to the labels
 on:
-  workflow_dispatch:
-  # pull_request_review:
-  #  types:
-  #    - submitted
+  pull_request_review:
+    types:
+      - submitted
+
 jobs:
-  track_pr:
+  update_pr_board:
     if: github.event.review.state == 'approved'
     runs-on: ubuntu-latest
     steps:
-      - name: Get project data
+      - name: Change design label
+        if: contains(github.event.pull_request.labels.*.name, 'bug')
         env:
-          GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
-          ORGANIZATION: 'ods-sandbox'
-          PROJECT_NUMBER: 1
+          GITHUB_TOKEN: ${{ secrets.BOOSTED_MOD_PERSONAL_TOKEN_CLASSIC }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          curl -L -X POST -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/$OWNER/$REPO/issues/$PR_NUMBER/labels -d '{"labels":["documentation"]}'
+          gh api --method DELETE "/repos/$OWNER/$REPO/issues/$PR_NUMBER/labels/bug"
+
+      - name: Change accessibility label
+        if: contains(github.event.pull_request.labels.*.name, 'upcoming a11y review')
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOOSTED_MOD_PERSONAL_TOKEN_CLASSIC }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh api --method POST /repos/$OWNER/$REPO/issues/$PR_NUMBER/labels/ -f labels=["ready for a11y review"]
+          gh api --method DELETE "/repos/$OWNER/$REPO/issues/$PR_NUMBER/labels/upcoming a11y review"
+
+      - name: Get Project Data
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOOSTED_MOD_PERSONAL_TOKEN_CLASSIC }}
+          ORGANIZATION: ${{ github.repository_owner }}
           PR_ID: ${{ github.event.pull_request.node_id }}
+          PROJECT_NUMBER: 1
+          PROJECT_COL_DESIGN_A11Y_REVIEW: "Need Design and/or Accessibility Review"
+          PROJECT_COL_LEAD_REVIEW: "Need Lead Dev Review"
         run: |
           gh api graphql -f query='
             query($org: String!, $number: Int!) {
@@ -43,12 +183,6 @@ jobs:
                       content {
                         ... on PullRequest {
                           id
-                          labels(first:20) {
-                            nodes {
-                              id
-                              name
-                            }
-                          }
                         }
                       }
                     }
@@ -61,13 +195,14 @@ jobs:
 
           echo 'PROJECT_ID='$(jq '.data.organization.projectV2.id' project_data.json) >> $GITHUB_ENV
           echo 'STATUS_FIELD_ID='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .id' project_data.json) >> $GITHUB_ENV
-          echo 'TODO_OPTION_ID='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="Need Design and/or Accessibility review") |.id' project_data.json) >> $GITHUB_ENV
+          echo 'TARGET_COL_ID1='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="${{ env.PROJECT_COL_DESIGN_A11Y_REVIEW }}") |.id' project_data.json) >> $GITHUB_ENV
+          echo 'TARGET_COL_ID2='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="${{ env.PROJECT_COL_LEAD_REVIEW }}") |.id' project_data.json) >> $GITHUB_ENV
           echo 'ITEM_ID='$(jq '.data.organization.projectV2.items.nodes[] | select(.content.id=="${{ env.PR_ID }}") |.id' project_data.json) >> $GITHUB_ENV
 
-      - name: Set fields
-        if: contains(github.event.pull_request.labels, 'bug') || contains(github.event.pull_request.labels, 'documentation')
+      - name: Change project card to the design and/or accessibility column
+        if: contains(github.event.pull_request.labels.*.name, 'upcoming a11y review') || contains(github.event.pull_request.labels.*.name, 'bug')
         env:
-          GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BOOSTED_MOD_PERSONAL_TOKEN_CLASSIC }}
         run: |
           gh api graphql -f query='
             mutation (
@@ -80,7 +215,7 @@ jobs:
                 projectId: $project
                 itemId: $item
                 fieldId: $status_field
-                value: { 
+                value: {
                   singleSelectOptionId: $status_value
                 }
               }) {
@@ -88,31 +223,30 @@ jobs:
                   id
                 }
               }
-            }' -f project=$PROJECT_ID -f item=$ITEM_ID -f status_field=$STATUS_FIELD_ID -f status_value=${{ env.TODO_OPTION_ID }} --silent
-      
-      - name: Set labels
+            }' -f project=$PROJECT_ID -f item=$ITEM_ID -f status_field=$STATUS_FIELD_ID -f status_value=${{ env.TARGET_COL_ID1 }} --silent
+
+      - name: Change project card to the lead tech column
+        if: "!(contains(github.event.pull_request.labels.*.name, 'upcoming a11y review') || contains(github.event.pull_request.labels.*.name, 'bug'))"
         env:
-          GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
-          LABEL_BUG_ID: ${{ github.event.pull_request.labels[0].node_id }}
+          GITHUB_TOKEN: ${{ secrets.BOOSTED_MOD_PERSONAL_TOKEN_CLASSIC }}
         run: |
-          echo $LABEL_BUG_ID
-          
           gh api graphql -f query='
             mutation (
-              $labelIds: [ID!]!
-              $labelableId: ID!
+              $project: ID!
+              $item: ID!
+              $status_field: ID!
+              $status_value: String!
             ) {
-              set_status: removeLabelsFromLabelable(input: {
-                labelIds : $labelIds
-                labelableId : $labelableId
+              set_status: updateProjectV2ItemFieldValue(input: {
+                projectId: $project
+                itemId: $item
+                fieldId: $status_field
+                value: {
+                  singleSelectOptionId: $status_value
+                }
               }) {
-                labelable {
-                  labels(first:20) {
-                    nodes {
-                      name
-                    }
-                  }
+                projectV2Item {
+                  id
                 }
               }
-            }' -f labelIds=[$LABEL_BUG_ID] -f labelableId=$ITEM_ID --silent
-          
+            }' -f project=$PROJECT_ID -f item=$ITEM_ID -f status_field=$STATUS_FIELD_ID -f status_value=${{ env.TARGET_COL_ID2 }} --silent
