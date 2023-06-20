@@ -1,9 +1,9 @@
 name: Add PR to the right column of the PR board
 on:
-  pull_request_target:
-    types:
-      - opened
-      - reopened
+#   pull_request_target:
+#     types:
+#       - opened
+#       - reopened
   workflow_dispatch:
 
 jobs:
