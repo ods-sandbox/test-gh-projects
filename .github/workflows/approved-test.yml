@@ -10,26 +10,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Change design label
-        if: contains(github.event.pull_request.labels.*.name, 'upcoming design review')
+        if: contains(github.event.pull_request.labels.*.name, 'upcoming-design-review')
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          curl -L -X POST -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/$OWNER/$REPO/issues/$PR_NUMBER/labels -d '{"labels":["ready for design review"]}'
-          gh api --method DELETE "/repos/$OWNER/$REPO/issues/$PR_NUMBER/labels/upcoming%20design%20review"
+          curl -L -X POST -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/$OWNER/$REPO/issues/$PR_NUMBER/labels -d '{"labels":["ready-for-design-review"]}'
+          gh api --method DELETE "/repos/$OWNER/$REPO/issues/$PR_NUMBER/labels/upcoming-design-review"
 
       - name: Change accessibility label
-        if: contains(github.event.pull_request.labels.*.name, 'upcoming a11y review')
+        if: contains(github.event.pull_request.labels.*.name, 'upcoming-a11y-review')
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          gh api --method POST /repos/$OWNER/$REPO/issues/$PR_NUMBER/labels/ -f labels=["ready for a11y review"]
-          gh api --method DELETE /repos/$OWNER/$REPO/issues/$PR_NUMBER/labels/ -f labels=["upcoming a11y review"]
+          gh api --method POST /repos/$OWNER/$REPO/issues/$PR_NUMBER/labels/ -f labels=["ready-for-a11y-review"]
+          gh api --method DELETE "/repos/$OWNER/$REPO/issues/$PR_NUMBER/labels/upcoming-a11y-review"
 
       - name: Get Project Data
         env:
@@ -84,7 +84,7 @@ jobs:
           echo 'ITEM_ID='$(jq '.data.organization.projectV2.items.nodes[] | select(.content.id=="${{ env.PR_ID }}") |.id' project_data.json) >> $GITHUB_ENV
 
       - name: Change project card to the design and/or accessibility column
-        if: contains(github.event.pull_request.labels.*.name, 'upcoming a11y review') || contains(github.event.pull_request.labels.*.name, 'upcoming design review')
+        if: contains(github.event.pull_request.labels.*.name, 'upcoming-a11y-review') || contains(github.event.pull_request.labels.*.name, 'upcoming-design-review')
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
         run: |
@@ -110,7 +110,7 @@ jobs:
             }' -f project=$PROJECT_ID -f item=$ITEM_ID -f status_field=$STATUS_FIELD_ID -f status_value=${{ env.TARGET_COL_ID1 }} --silent
 
       - name: Change project card to the lead tech column
-        if: "!(contains(github.event.pull_request.labels.*.name, 'upcoming a11y review') || contains(github.event.pull_request.labels.*.name, 'upcoming design review'))"
+        if: "!(contains(github.event.pull_request.labels.*.name, 'upcoming-a11y-review') || contains(github.event.pull_request.labels.*.name, 'upcoming-design-review'))"
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
         run: |
