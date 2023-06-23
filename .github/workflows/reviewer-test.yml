@@ -6,7 +6,7 @@ on:
 
 jobs:
   project-move-card:
-    if: github.event.review.state != 'approved'
+    if: github.event.review.state != 'approved' && github.event.review.user != 'julien-deramond' && github.event.review.user != 'Aniort'
     runs-on: ubuntu-latest
     steps:
       - name: Get Project Data
@@ -16,7 +16,6 @@ jobs:
           PR_ID: ${{ github.event.pull_request.node_id }}
           PROJECT_NUMBER: 1
           PROJECT_TARGET_COL: "Dev Review In Progress"
-          PROJECT_ORIGIN_COL: "Ready for Dev Review"
         run: |
           gh api graphql -f query='
             query($org: String!, $number: Int!) {
@@ -47,24 +46,17 @@ jobs:
                           id
                         }
                       }
-                      fieldValues {
-                        nodes {
-                          id
-                          name
-                        }
-                      }
                     }
                   }
                 }
               }
             }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
 
-          echo `cat project_data.json`
+          # echo `cat project_data.json`
 
           echo 'PROJECT_ID='$(jq '.data.organization.projectV2.id' project_data.json) >> $GITHUB_ENV
           echo 'STATUS_FIELD_ID='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .id' project_data.json) >> $GITHUB_ENV
           echo 'TARGET_COL_ID='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="${{ env.PROJECT_TARGET_COL }}") |.id' project_data.json) >> $GITHUB_ENV
-          echo 'ORIGIN_COL_NAME='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="${{ env.PROJECT_ORIGIN_COL }}") |.name' project_data.json) >> $GITHUB_ENV
           echo 'ITEM_ID='$(jq '.data.organization.projectV2.items.nodes[] | select(.content.id=="${{ env.PR_ID }}") |.id' project_data.json) >> $GITHUB_ENV
 
       - name: Move to Dev Review in Progress Column
