@@ -19,7 +19,7 @@ jobs:
           PROJECT_ORIGIN_COL: "Ready for Dev Review"
         run: |
           gh api graphql -f query='
-            query($org: String!, $number: Int!) {
+            query($org: String!, $number: Int!, $name: String!) {
               organization(login: $org){
                 projectV2(number: $number) {
                   id
@@ -47,7 +47,7 @@ jobs:
                           id
                         }
                       }
-                      fieldValueByName {
+                      fieldValueByName(name: $name) {
                         ... on ProjectV2ItemFieldLabelValue {
                           field
                         }
@@ -56,7 +56,7 @@ jobs:
                   }
                 }
               }
-            }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
+            }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json -f name="Status"
 
           echo `cat project_data.json`
 
