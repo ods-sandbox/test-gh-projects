@@ -57,7 +57,7 @@ jobs:
                   }
                 }
               }
-            }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json -f
+            }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
 
           echo `cat project_data.json`
 
