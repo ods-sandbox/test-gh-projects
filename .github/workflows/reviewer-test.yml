@@ -19,7 +19,7 @@ jobs:
           PROJECT_ORIGIN_COL: "Ready for Dev Review"
         run: |
           gh api graphql -f query='
-            query($org: String!, $number: Int!, $name: String!) {
+            query($org: String!, $number: Int!) {
               organization(login: $org){
                 projectV2(number: $number) {
                   id
@@ -57,7 +57,7 @@ jobs:
                   }
                 }
               }
-            }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json -f name="Status"
+            }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json -f
 
           echo `cat project_data.json`
 
