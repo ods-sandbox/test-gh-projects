@@ -1,0 +1,14 @@
+name: Dev reviewed move PR in the right column
+on:
+  pull_request_review:
+    types: 
+      - submitted
+
+jobs:
+  project-move-card:
+    # if: github.event.review.state != 'approved' && github.event.review.user != github.repository.codeowners
+    runs-on: ubuntu-latest
+    steps:
+      - name: test
+        run: |
+          echo ${{ github }}
