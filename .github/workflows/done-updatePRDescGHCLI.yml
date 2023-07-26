@@ -15,6 +15,13 @@ jobs:
             gh api /repos/$OWNER/$REPO/pulls/$PR_NUMBER | jq -r '.body'
           )"
           echo $TOTO
+          echo "------1-------"
+          echo "$TOTO"
+          echo "------2-------"
+          echo $PR_UPDATED_BODY
+          echo "------3-------"
+          echo "$PR_UPDATED_BODY"
+          echo "------4-------"
           echo 'PR_UPDATED_BODY'=${PR_UPDATED_BODY} >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
