@@ -22,7 +22,7 @@ jobs:
           echo "------3-------"
           echo "$PR_UPDATED_BODY"
           echo "------4-------"
-          echo 'PR_UPDATED_BODY'=${PR_UPDATED_BODY} >> $GITHUB_ENV
+          echo 'PR_UPDATED_BODY'="$PR_UPDATED_BODY" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
           OWNER: ${{ github.repository_owner }}
