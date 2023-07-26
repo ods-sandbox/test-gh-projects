@@ -11,7 +11,7 @@ jobs:
           PR_UPDATED_BODY="$(
             gh api /repos/$OWNER/$REPO/pulls/$PR_NUMBER | jq -r '.body' | sed 's/{your_pr_number}/${{ env.PR_NUMBER }}/g'
           )"
-          echo 'PR_UPDATED_BODY'=${PR_UPDATED_BODY} >> $GITHUB_ENV
+          echo -e 'PR_UPDATED_BODY'=${PR_UPDATED_BODY} >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
           OWNER: ${{ github.repository_owner }}
