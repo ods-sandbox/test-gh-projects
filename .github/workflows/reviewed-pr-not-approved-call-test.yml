@@ -6,12 +6,11 @@ on:
 
 jobs:
   not-approved:
-    if: ${{ github.event.pull_request.draft == false && github.event.review.state != 'approved' && github.actor != vars.LEAD_DEV_GH_USERNAME }}
+    if: ${{ github.event.pull_request.draft == false && github.event.review.state == 'changes_requested' && github.actor != vars.LEAD_DEV_GH_USERNAME }}
     runs-on: ubuntu-latest
     steps:
       - name: Get Project Data
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
-          MESSAGE: ${{ github.event.review.state }}
         run: |
           echo 'not approved'
