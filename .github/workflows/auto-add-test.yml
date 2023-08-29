@@ -1,51 +1,30 @@
-name: Update PR board according to the labels
+name: Add PR to the right column of the PR board
 on:
-  pull_request_review:
-    types:
-      - submitted
+#   pull_request_target:
+#     types:
+#       - opened
+#       - reopened
+  workflow_dispatch:
 
 jobs:
-  update_pr_board:
-    if: github.event.review.state == 'approved'
+  add_pr_to_board:
     runs-on: ubuntu-latest
     steps:
-      - name: Change design label
-        if: contains(github.event.pull_request.labels.*.name, 'upcoming design review')
-        env:
-          GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
-          OWNER: ${{ github.repository_owner }}
-          REPO: ${{ github.event.repository.name }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          curl -L -X POST -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/$OWNER/$REPO/issues/$PR_NUMBER/labels -d '{"labels":["ready for design review"]}'
-          gh api --method DELETE "/repos/$OWNER/$REPO/issues/$PR_NUMBER/labels/upcoming design review"
-
-      - name: Change accessibility label
-        if: contains(github.event.pull_request.labels.*.name, 'upcoming a11y review')
-        env:
-          GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
-          OWNER: ${{ github.repository_owner }}
-          REPO: ${{ github.event.repository.name }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          curl -L -X POST -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/$OWNER/$REPO/issues/$PR_NUMBER/labels -d '{"labels":["ready for a11y review"]}'
-          gh api --method DELETE "/repos/$OWNER/$REPO/issues/$PR_NUMBER/labels/upcoming a11y review"
-
       - name: Get Project Data
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
           ORGANIZATION: ${{ github.repository_owner }}
           PR_ID: ${{ github.event.pull_request.node_id }}
           PROJECT_NUMBER: 1
-          PROJECT_COL_DESIGN_A11Y_REVIEW: "Need Design and/or Accessibility review"
-          PROJECT_COL_LEAD_REVIEW: "Need Lead Dev Review"
+          PROJECT_COL_IN_PROGRESS: "In Progress / Draft"
+          PROJECT_COL_DEV_REVIEW: "Ready for Dev Review"
         run: |
           gh api graphql -f query='
             query($org: String!, $number: Int!) {
               organization(login: $org){
                 projectV2(number: $number) {
                   id
-                  fields(first:20) {
+                  fields(first:50) {
                     nodes {
                       ... on ProjectV2Field {
                         id
@@ -61,7 +40,7 @@ jobs:
                       }
                     }
                   }
-                  items(first:20) {
+                  items(first:50) {
                     nodes {
                       id
                       content {
@@ -74,17 +53,15 @@ jobs:
                 }
               }
             }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
-
           echo `cat project_data.json`
-
           echo 'PROJECT_ID='$(jq '.data.organization.projectV2.id' project_data.json) >> $GITHUB_ENV
           echo 'STATUS_FIELD_ID='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .id' project_data.json) >> $GITHUB_ENV
-          echo 'TARGET_COL_ID1='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="${{ env.PROJECT_COL_DESIGN_A11Y_REVIEW }}") |.id' project_data.json) >> $GITHUB_ENV
-          echo 'TARGET_COL_ID2='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="${{ env.PROJECT_COL_LEAD_REVIEW }}") |.id' project_data.json) >> $GITHUB_ENV
+          echo 'TARGET_COL_ID1='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="${{ env.PROJECT_COL_IN_PROGRESS }}") |.id' project_data.json) >> $GITHUB_ENV
+          echo 'TARGET_COL_ID2='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="${{ env.PROJECT_COL_DEV_REVIEW }}") |.id' project_data.json) >> $GITHUB_ENV
           echo 'ITEM_ID='$(jq '.data.organization.projectV2.items.nodes[] | select(.content.id=="${{ env.PR_ID }}") |.id' project_data.json) >> $GITHUB_ENV
 
-      - name: Change project card to the design and/or accessibility column
-        if: contains(github.event.pull_request.labels.*.name, 'upcoming a11y review') || contains(github.event.pull_request.labels.*.name, 'upcoming design review')
+      - name: Add card to in progress column
+        if: github.event.pull_request.draft == true
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
         run: |
@@ -109,8 +86,8 @@ jobs:
               }
             }' -f project=$PROJECT_ID -f item=$ITEM_ID -f status_field=$STATUS_FIELD_ID -f status_value=${{ env.TARGET_COL_ID1 }} --silent
 
-      - name: Change project card to the lead tech column
-        if: "!(contains(github.event.pull_request.labels.*.name, 'upcoming a11y review') || contains(github.event.pull_request.labels.*.name, 'upcoming design review'))"
+      - name: Add card to in progress column
+        if: github.event.pull_request.draft == false
         env:
           GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
         run: |
