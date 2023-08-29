@@ -1,8 +1,9 @@
 name: Dev reviewed move PR in the right column
 on:
-  pull_request_review:
-    types: 
-      - submitted
+  # pull_request_review:
+  #   types: 
+  #     - submitted
+  workflow_dispatch:
 
 jobs:
   project-move-card:

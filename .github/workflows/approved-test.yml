@@ -1,8 +1,9 @@
 name: Update PR board according to the labels
 on:
-  pull_request_review:
-    types:
-      - submitted
+  # pull_request_review:
+  #   types:
+  #     - submitted
+  workflow_dispatch:
 
 jobs:
   update_pr_board:
