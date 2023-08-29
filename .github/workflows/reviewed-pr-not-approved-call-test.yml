@@ -6,7 +6,7 @@ on:
 
 jobs:
   not-approved:
-    if: github.event.pull_request.draft == false && github.event.review.state != 'approved' && github.event.review.user != 'louismaximepiton'
+    if: github.event.pull_request.draft == false && github.event.review.state != 'approved' && github.event.review.user != ${{ vars.LEAD_DEV_GH_USERNAME }}
     runs-on: ubuntu-latest
     steps:
       - name: Get Project Data
