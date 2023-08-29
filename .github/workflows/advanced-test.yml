@@ -1,9 +1,10 @@
 name: Move PR to Dev Review Project Column
 on:
-  pull_request_target:
-   types:
-     - ready_for_review
-     - opened
+  # pull_request_target:
+  #  types:
+  #    - ready_for_review
+  #    - opened
+  workflow_dispatch:
 
 jobs:
   project_move_to_dev_review:

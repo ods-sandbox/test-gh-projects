@@ -1,0 +1,16 @@
+name: Dev reviewed move PR in the right column
+on:
+  pull_request_review:
+    types: 
+      - submitted
+
+jobs:
+  project-move-card:
+    if: github.event.review.state == 'approved'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Project Data
+        env:
+          GITHUB_TOKEN: ${{ secrets.YOUR_TOKEN }}
+        run: |
+          echo 'approved'

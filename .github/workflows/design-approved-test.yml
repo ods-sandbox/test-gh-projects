@@ -1,9 +1,10 @@
 name: Move card in project when design or a11y approved
 on:
-    pull_request_target:
-        types:
-            - labeled
-            - unlabeled
+    # pull_request_target:
+    #     types:
+    #         - labeled
+    #         - unlabeled
+    workflow_dispatch:
 
 jobs: 
     design_approved:
